@@ -51,98 +51,20 @@ interface AppState {
   setPointsBalance: (points: number) => void;
 }
 
-const initialTasks: Task[] = [
-  {
-    id: 't-1',
-    title: 'Rutina de la Mañana 🌅',
-    description: 'Pasos tranquilos para iniciar el día con energía.',
-    category: 'routine_morning',
-    frequencyType: 'daily',
-    estimatedMinutes: 20,
-    rewardPoints: 30,
-    status: 'pending',
-    assignedDate: new Date().toISOString().split('T')[0],
-    substeps: [
-      { id: 's-1', title: 'Lavarse la cara y dientes', completed: false },
-      { id: 's-2', title: 'Ponerse la ropa limpia elegida', completed: false },
-      { id: 's-3', title: 'Tomar el desayuno despacio', completed: false },
-      { id: 's-4', title: 'Revisar la maleta antes de salir', completed: false }
-    ]
-  },
-  {
-    id: 't-2',
-    title: 'Bloque de Enfoque: Tarea de Estudio 📚',
-    description: 'Dividido en micro-pasos para no agobiarse.',
-    category: 'school',
-    frequencyType: 'weekly',
-    weeklyDays: [1, 2, 3, 4, 5], // Lunes a Viernes
-    estimatedMinutes: 15,
-    rewardPoints: 50,
-    status: 'pending',
-    assignedDate: new Date().toISOString().split('T')[0],
-    substeps: [
-      { id: 's-201', title: 'Preparar la mesa libre de distracciones', completed: false },
-      { id: 's-202', title: 'Leer la guía de ejercicios una vez', completed: false },
-      { id: 's-203', title: 'Resolver los primeros 3 problemas', completed: false },
-      { id: 's-204', title: 'Guardar cuadernos en el bolso', completed: false }
-    ]
-  },
-  {
-    id: 't-3',
-    title: 'Ordenar el Espacio Propio 🧺',
-    description: 'Mantener el cuarto despejado da tranquilidad mental.',
-    category: 'home',
-    frequencyType: 'weekly',
-    weeklyDays: [3, 6], // Miércoles y Sábado
-    estimatedMinutes: 10,
-    rewardPoints: 40,
-    status: 'pending',
-    assignedDate: new Date().toISOString().split('T')[0],
-    substeps: [
-      { id: 's-301', title: 'Recoger la ropa sucia y llevarla a la cesta', completed: false },
-      { id: 's-302', title: 'Alinear los libros y objetos del escritorio', completed: false }
-    ]
-  }
-];
-
-const initialRewards: Reward[] = [
-  {
-    id: 'r-1',
-    title: '30 min de Videojuegos o Tablet 🎮',
-    costPoints: 50,
-    icon: 'gamepad',
-    redeemedCount: 0
-  },
-  {
-    id: 'r-2',
-    title: 'Elegir el Menú de la Cena 🍕',
-    costPoints: 80,
-    icon: 'utensils',
-    redeemedCount: 0
-  },
-  {
-    id: 'r-3',
-    title: 'Salida Especial al Parque / Helado 🍦',
-    costPoints: 120,
-    icon: 'tree',
-    redeemedCount: 0
-  }
-];
-
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
       currentRole: 'hijo',
-      pointsBalance: 70,
-      tasks: initialTasks,
-      rewards: initialRewards,
+      pointsBalance: 0,
+      tasks: [],
+      rewards: [],
       settings: {
         familyCode: 'FAM-JERO2026',
         childName: 'Jero',
         pinMama: '1234',
         theme: 'calm',
         soundEnabled: true,
-        streakCount: 3
+        streakCount: 0
       },
       activeTaskId: null,
 
