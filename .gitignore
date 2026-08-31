@@ -24,3 +24,5 @@ sync-state.json
 *.njsproj
 *.sln
 *.sw?
+
+.vercel
