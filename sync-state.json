@@ -1,0 +1,213 @@
+{
+  "tasks": [
+    {
+      "title": "edfa",
+      "description": "asdadasd",
+      "category": "routine_morning",
+      "frequencyType": "daily",
+      "estimatedMinutes": 15,
+      "rewardPoints": 30,
+      "substeps": [
+        {
+          "id": "sub-1788145605317-0",
+          "title": "Paso 1asd",
+          "completed": true
+        },
+        {
+          "id": "sub-1788145605317-1",
+          "title": "asd",
+          "completed": true
+        }
+      ],
+      "assignedDate": "2026-08-31",
+      "id": "t-1788145605317",
+      "status": "completed",
+      "completedAt": "2026-08-31T03:07:27.684Z"
+    },
+    {
+      "title": "lavar baño",
+      "description": "Lavar baño ",
+      "category": "routine_morning",
+      "frequencyType": "weekly",
+      "weeklyDays": [
+        6
+      ],
+      "estimatedMinutes": 30,
+      "rewardPoints": 10,
+      "substeps": [
+        {
+          "id": "sub-1788144357363-0",
+          "title": "sacar cosas",
+          "completed": true
+        },
+        {
+          "id": "sub-1788144357363-1",
+          "title": "alistar elementos para lavar el baño",
+          "completed": true
+        },
+        {
+          "id": "sub-1788144357363-2",
+          "title": "lavar el baño",
+          "completed": true
+        },
+        {
+          "id": "sub-1788144357363-3",
+          "title": "organizar el baño",
+          "completed": true
+        },
+        {
+          "id": "sub-1788144357363-4",
+          "title": "dejar seco el baño",
+          "completed": true
+        }
+      ],
+      "assignedDate": "2026-08-31",
+      "id": "t-1788144357363",
+      "status": "completed"
+    },
+    {
+      "id": "t-1",
+      "title": "Rutina de la Mañana 🌅",
+      "description": "Pasos tranquilos para iniciar el día con energía.",
+      "category": "routine_morning",
+      "estimatedMinutes": 20,
+      "rewardPoints": 30,
+      "status": "completed",
+      "assignedDate": "2026-08-31",
+      "substeps": [
+        {
+          "id": "s-1",
+          "title": "Lavarse la cara y dientes",
+          "completed": true
+        },
+        {
+          "id": "s-2",
+          "title": "Ponerse la ropa limpia elegida",
+          "completed": true
+        },
+        {
+          "id": "s-3",
+          "title": "Tomar el desayuno despacio",
+          "completed": true
+        },
+        {
+          "id": "s-4",
+          "title": "Revisar la maleta antes de salir",
+          "completed": true
+        }
+      ]
+    },
+    {
+      "id": "t-2",
+      "title": "Bloque de Enfoque: Tarea de Estudio 📚",
+      "description": "Dividido en micro-pasos para no agobiarse.",
+      "category": "school",
+      "estimatedMinutes": 15,
+      "rewardPoints": 50,
+      "status": "completed",
+      "assignedDate": "2026-08-31",
+      "substeps": [
+        {
+          "id": "s-201",
+          "title": "Preparar la mesa libre de distracciones",
+          "completed": true
+        },
+        {
+          "id": "s-202",
+          "title": "Leer la guía de ejercicios una vez",
+          "completed": true
+        },
+        {
+          "id": "s-203",
+          "title": "Resolver los primeros 3 problemas",
+          "completed": true
+        },
+        {
+          "id": "s-204",
+          "title": "Guardar cuadernos en el bolso",
+          "completed": true
+        }
+      ]
+    },
+    {
+      "id": "t-3",
+      "title": "Ordenar el Espacio Propio 🧺",
+      "description": "Mantener el cuarto despejado da tranquilidad mental.",
+      "category": "home",
+      "estimatedMinutes": 10,
+      "rewardPoints": 40,
+      "status": "completed",
+      "assignedDate": "2026-08-31",
+      "substeps": [
+        {
+          "id": "s-301",
+          "title": "Recoger la ropa sucia y llevarla a la cesta",
+          "completed": true
+        },
+        {
+          "id": "s-302",
+          "title": "Alinear los libros y objetos del escritorio",
+          "completed": true
+        }
+      ]
+    }
+  ],
+  "rewards": [
+    {
+      "id": "r-1",
+      "title": "30 min de Videojuegos o Tablet 🎮",
+      "costPoints": 50,
+      "icon": "gamepad",
+      "redeemedCount": 1
+    },
+    {
+      "id": "r-2",
+      "title": "Elegir el Menú de la Cena 🍕",
+      "costPoints": 80,
+      "icon": "utensils",
+      "redeemedCount": 0
+    },
+    {
+      "id": "r-3",
+      "title": "Salida Especial al Parque / Helado 🍦",
+      "costPoints": 120,
+      "icon": "tree",
+      "redeemedCount": 0
+    }
+  ],
+  "pointsBalance": 20,
+  "settings": {
+    "familyCode": "FAM-JERO2026",
+    "childName": "Jero",
+    "pinMama": "1234",
+    "theme": "calm",
+    "soundEnabled": true,
+    "todayMood": {
+      "mood": "happy",
+      "date": "2026-08-31",
+      "updatedAt": "2026-08-31T02:50:20.879Z"
+    },
+    "streakCount": 0,
+    "lastRolloverDate": "2026-08-31",
+    "pendingRewardRequests": [
+      {
+        "id": "req-1788145931554",
+        "rewardId": "r-1",
+        "rewardTitle": "30 min de Videojuegos o Tablet 🎮",
+        "costPoints": 50,
+        "icon": "gamepad",
+        "requestedAt": "2026-08-31T03:12:11.554Z",
+        "status": "pending"
+      },
+      {
+        "id": "req-1788145935370",
+        "rewardId": "r-1",
+        "rewardTitle": "30 min de Videojuegos o Tablet 🎮",
+        "costPoints": 50,
+        "icon": "gamepad",
+        "requestedAt": "2026-08-31T03:12:15.370Z",
+        "status": "pending"
+      }
+    ]
+  }
+}
