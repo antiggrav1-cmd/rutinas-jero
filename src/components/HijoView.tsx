@@ -5,17 +5,12 @@ import { TaskCard } from './TaskCard';
 import { RewardStore } from './RewardStore';
 import { MoodCheckInWidget } from './MoodCheckInWidget';
 import { EncouragementBanner } from './EncouragementBanner';
+import { HijoHeaderBanner } from './hijo/HijoHeaderBanner';
+import { HijoCategoryFilters } from './hijo/HijoCategoryFilters';
 import { 
-  Sun, 
-  Moon, 
-  BookOpen, 
-  Home, 
-  User, 
   Sparkles, 
-  Trophy, 
   CheckCircle2, 
   Gift, 
-  Flame, 
   Clock, 
   CheckCheck 
 } from 'lucide-react';
@@ -42,52 +37,18 @@ export const HijoView: React.FC = () => {
       {/* Banner de Mensaje de Ánimo de Mamá */}
       <EncouragementBanner />
       
-      {/* Banner de Bienvenida Cálido y Motivador (Bajo Ruido Sensorial) */}
-      <div className="bg-gradient-to-r from-teal-600 to-emerald-500 text-white rounded-3xl p-6 shadow-xl mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-teal-200 text-xs font-bold uppercase tracking-wider mb-1">
-            <Sparkles className="w-4 h-4 text-emerald-200" />
-            <span>Modo Enfoque Tranquilo</span>
-          </div>
-          <h2 className="text-2xl font-black">¡Hola, {settings.childName}! 👋</h2>
-          <p className="text-xs text-teal-100 mt-1 max-w-md">
-            Completa cada paso a tu propio ritmo. Cada tarea terminada te da estrellas para ganar tus premios.
-          </p>
-        </div>
-
-        {/* Tally Card de Puntos y Racha */}
-        <div className="flex items-center gap-3 shrink-0">
-          {/* Card Racha */}
-          <div className="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-3.5 flex items-center gap-2.5">
-            <div className="bg-orange-500 text-white p-2.5 rounded-xl shadow-md">
-              <Flame className="w-5 h-5 fill-current animate-bounce-short" />
-            </div>
-            <div>
-              <div className="text-[10px] text-teal-100 font-bold uppercase tracking-wider">Racha Consecutiva</div>
-              <div className="text-lg font-black text-white">{settings.streakCount || 0} Días 🔥</div>
-            </div>
-          </div>
-
-          {/* Card Puntos */}
-          <div className="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-3.5 flex items-center gap-2.5">
-            <div className="bg-amber-400 text-amber-950 p-2.5 rounded-xl shadow-md">
-              <Trophy className="w-5 h-5 fill-amber-300 text-amber-500" />
-            </div>
-            <div>
-              <div className="text-[10px] text-teal-100 font-bold uppercase tracking-wider">Tus Puntos</div>
-              <div className="text-lg font-black text-white">{pointsBalance} pts</div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Banner de Bienvenida */}
+      <HijoHeaderBanner
+        childName={settings.childName}
+        streakCount={settings.streakCount || 0}
+        pointsBalance={pointsBalance}
+      />
 
       {/* Check-in Emocional Diario */}
       <MoodCheckInWidget />
 
       {/* Pestañas Principales Organizadas para Jero */}
       <div className="flex items-center gap-2 border-b border-slate-200 mb-6 overflow-x-auto pb-2 no-scrollbar">
-        
-        {/* Pestaña Tareas Pendientes */}
         <button
           onClick={() => setActiveTab('pending')}
           className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-extrabold text-xs transition shrink-0 ${
@@ -100,7 +61,6 @@ export const HijoView: React.FC = () => {
           <span>📌 Pendientes ({totalPendingCount})</span>
         </button>
 
-        {/* Pestaña Tareas Hechas */}
         <button
           onClick={() => setActiveTab('completed')}
           className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-extrabold text-xs transition shrink-0 ${
@@ -113,7 +73,6 @@ export const HijoView: React.FC = () => {
           <span>🎉 Hechas ({totalCompletedCount})</span>
         </button>
         
-        {/* Pestaña Premios */}
         <button
           onClick={() => setActiveTab('rewards')}
           className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-extrabold text-xs transition shrink-0 ${
@@ -125,80 +84,16 @@ export const HijoView: React.FC = () => {
           <Gift className="w-4 h-4" />
           <span>🎁 Tienda de Premios</span>
         </button>
-
       </div>
 
       {/* Vista de Tareas Pendientes */}
       {activeTab === 'pending' && (
         <>
           {/* Filtros Visuales por Categoría */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-6 no-scrollbar">
-            <button
-              onClick={() => setSelectedCategory('all')}
-              className={`px-4 py-2 rounded-2xl text-xs font-extrabold whitespace-nowrap border transition ${
-                selectedCategory === 'all'
-                  ? 'bg-slate-800 text-white border-slate-800 shadow-sm'
-                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-              }`}
-            >
-              Todas las Rutinas
-            </button>
-            <button
-              onClick={() => setSelectedCategory('routine_morning')}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap border transition ${
-                selectedCategory === 'routine_morning'
-                  ? 'bg-amber-500 text-white border-amber-500 shadow-sm'
-                  : 'bg-white text-amber-800 border-amber-200 hover:bg-amber-50'
-              }`}
-            >
-              <Sun className="w-3.5 h-3.5" />
-              <span>Mañana</span>
-            </button>
-            <button
-              onClick={() => setSelectedCategory('routine_night')}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap border transition ${
-                selectedCategory === 'routine_night'
-                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                  : 'bg-white text-indigo-800 border-indigo-200 hover:bg-indigo-50'
-              }`}
-            >
-              <Moon className="w-3.5 h-3.5" />
-              <span>Noche</span>
-            </button>
-            <button
-              onClick={() => setSelectedCategory('school')}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap border transition ${
-                selectedCategory === 'school'
-                  ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                  : 'bg-white text-blue-800 border-blue-200 hover:bg-blue-50'
-              }`}
-            >
-              <BookOpen className="w-3.5 h-3.5" />
-              <span>Escuela</span>
-            </button>
-            <button
-              onClick={() => setSelectedCategory('home')}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap border transition ${
-                selectedCategory === 'home'
-                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
-                  : 'bg-white text-emerald-800 border-emerald-200 hover:bg-emerald-50'
-              }`}
-            >
-              <Home className="w-3.5 h-3.5" />
-              <span>Hogar</span>
-            </button>
-            <button
-              onClick={() => setSelectedCategory('personal')}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap border transition ${
-                selectedCategory === 'personal'
-                  ? 'bg-purple-600 text-white border-purple-600 shadow-sm'
-                  : 'bg-white text-purple-800 border-purple-200 hover:bg-purple-50'
-              }`}
-            >
-              <User className="w-3.5 h-3.5" />
-              <span>Cuidado</span>
-            </button>
-          </div>
+          <HijoCategoryFilters
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+          />
 
           {/* Lista de Tareas Pendientes */}
           <div className="space-y-4 mb-8">
@@ -221,7 +116,7 @@ export const HijoView: React.FC = () => {
         </>
       )}
 
-      {/* Vista de Tareas Hechas / Completadas */}
+      {/* Vista de Tareas Hechas */}
       {activeTab === 'completed' && (
         <div className="space-y-4 mb-8">
           <div className="flex items-center justify-between px-1">

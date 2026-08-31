@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
-import type { Task, CategoryType } from '../types';
+import type { Task } from '../types';
 import { useAppStore } from '../store/useAppStore';
 import { 
   CheckCircle2, 
   Circle, 
   Clock, 
   Star, 
-  Sun, 
-  Moon, 
-  BookOpen, 
-  Home, 
-  User, 
-  Sparkles, 
   Play, 
   Trash2,
   ChevronDown,
@@ -19,65 +13,19 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { FocusTimer } from './FocusTimer';
+import { CATEGORY_CONFIG, DAY_NAMES } from '../constants';
 
 interface TaskCardProps {
   task: Task;
   isMamaRole?: boolean;
 }
 
-const categoryConfig: Record<CategoryType, { label: string; bg: string; text: string; border: string; icon: any }> = {
-  routine_morning: {
-    label: 'Rutina Mañana',
-    bg: 'bg-amber-50',
-    text: 'text-amber-800',
-    border: 'border-amber-200',
-    icon: Sun
-  },
-  routine_night: {
-    label: 'Rutina Noche',
-    bg: 'bg-indigo-50',
-    text: 'text-indigo-800',
-    border: 'border-indigo-200',
-    icon: Moon
-  },
-  school: {
-    label: 'Escuela / Estudio',
-    bg: 'bg-blue-50',
-    text: 'text-blue-800',
-    border: 'border-blue-200',
-    icon: BookOpen
-  },
-  home: {
-    label: 'Hogar / Habitación',
-    bg: 'bg-emerald-50',
-    text: 'text-emerald-800',
-    border: 'border-emerald-200',
-    icon: Home
-  },
-  personal: {
-    label: 'Cuidado Personal',
-    bg: 'bg-purple-50',
-    text: 'text-purple-800',
-    border: 'border-purple-200',
-    icon: User
-  },
-  custom: {
-    label: 'Actividad',
-    bg: 'bg-slate-50',
-    text: 'text-slate-800',
-    border: 'border-slate-200',
-    icon: Sparkles
-  }
-};
-
-const DAY_NAMES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-
 export const TaskCard: React.FC<TaskCardProps> = ({ task, isMamaRole = false }) => {
   const { toggleSubStep, completeTask, deleteTask, approveTaskAndAwardPoints, rejectTaskForRevision } = useAppStore();
   const [showTimer, setShowTimer] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
 
-  const config = categoryConfig[task.category] || categoryConfig.custom;
+  const config = CATEGORY_CONFIG[task.category] || CATEGORY_CONFIG.custom;
   const CategoryIcon = config.icon;
 
   const completedSubstepsCount = task.substeps.filter((s) => s.completed).length;
