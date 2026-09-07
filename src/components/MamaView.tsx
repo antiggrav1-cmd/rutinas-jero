@@ -24,7 +24,8 @@ import {
 import confetti from 'canvas-confetti';
 import { getTodayISO } from '../utils/dateUtils';
 
-type MamaTab = 'pending_approval' | 'active_tasks' | 'expired' | 'completed' | 'rewards' | 'settings';
+type MamaMainTab = 'resumen' | 'puntos_premios' | 'actividades' | 'settings';
+type ActivitySubTab = 'pending_approval' | 'active_tasks' | 'expired' | 'completed';
 
 export const MamaView: React.FC = () => {
   const { 
@@ -40,7 +41,8 @@ export const MamaView: React.FC = () => {
     forgiveExpiredTask
   } = useAppStore();
   
-  const [activeTab, setActiveTab] = useState<MamaTab>('active_tasks');
+  const [mainTab, setMainTab] = useState<MamaMainTab>('actividades');
+  const [activitySubTab, setActivitySubTab] = useState<ActivitySubTab>('active_tasks');
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [frequencyFilter, setFrequencyFilter] = useState<'all' | FrequencyType>('all');
@@ -107,6 +109,7 @@ export const MamaView: React.FC = () => {
   const totalTasksCount = tasks.length;
   const completionPercentage = totalTasksCount > 0 ? Math.round((completedTasks.length / totalTasksCount) * 100) : 0;
   const totalFocusMinutes = tasks.reduce((sum, t) => sum + (t.estimatedMinutes || 0), 0);
+  const pendingRewardsCount = settings.pendingRewardRequests?.length || 0;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
@@ -127,12 +130,13 @@ export const MamaView: React.FC = () => {
           </div>
           <h2 className="text-2xl font-black">Modo Cuidador / Mamá</h2>
           <p className="text-xs text-purple-200 mt-1 max-w-md">
-            Supervisa avances, crea rutinas desglosadas, otorga puntos sorpresa y envía mensajes de ánimo para {settings.childName}.
+            Supervisa avances, crea rutinas desglosadas, otorga puntos sorpresa y acompaña el día de {settings.childName}.
           </p>
         </div>
 
         <button
           onClick={() => {
+            setMainTab('actividades');
             setEditingTask(null);
             setShowTaskForm(!showTaskForm);
           }}
@@ -143,247 +147,302 @@ export const MamaView: React.FC = () => {
         </button>
       </div>
 
-      {/* Métricas de Avance */}
-      <MamaMetricsCard
-        completionPercentage={completionPercentage}
-        completedTasksCount={completedTasks.length}
-        totalTasksCount={totalTasksCount}
-        totalFocusMinutes={totalFocusMinutes}
-        pointsBalance={pointsBalance}
-        childName={settings.childName}
-      />
-
-      {/* Bonus de Puntos y Notas de Ánimo */}
-      <MamaBonusAndNoteWidget
-        childName={settings.childName}
-        onGiveBonus={handleGiveBonus}
-        onSendNote={handleSendNote}
-      />
-
-      {/* Indicador de Estado de Ánimo */}
-      <MamaMoodIndicator
-        childName={settings.childName}
-        todayMood={settings.todayMood}
-      />
-
-      {/* Pestañas de Navegación Organizadas */}
-      <div className="flex items-center gap-2 border-b border-slate-200 mb-6 overflow-x-auto pb-2 no-scrollbar">
+      {/* Pestañas Principales Organizadas */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
         <button
-          onClick={() => setActiveTab('pending_approval')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-extrabold text-xs transition relative shrink-0 ${
-            activeTab === 'pending_approval'
-              ? 'bg-amber-500 text-white shadow-md shadow-amber-200'
-              : pendingApprovalTasks.length > 0
-              ? 'bg-amber-50 text-amber-900 border border-amber-300 font-black animate-pulse'
-              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+          onClick={() => setMainTab('resumen')}
+          className={`flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-extrabold text-xs transition border shadow-sm ${
+            mainTab === 'resumen'
+              ? 'bg-purple-700 text-white border-purple-800 ring-2 ring-purple-400 shadow-md'
+              : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
           }`}
         >
-          <Clock className="w-4 h-4" />
-          <span>📩 Por Aprobar ({pendingApprovalTasks.length})</span>
+          <Sparkles className="w-4 h-4 text-purple-400" />
+          <span>📊 Resumen</span>
         </button>
 
         <button
-          onClick={() => setActiveTab('active_tasks')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-extrabold text-xs transition shrink-0 ${
-            activeTab === 'active_tasks'
-              ? 'bg-purple-700 text-white shadow-md shadow-purple-200'
-              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+          onClick={() => setMainTab('puntos_premios')}
+          className={`flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-extrabold text-xs transition border shadow-sm relative ${
+            mainTab === 'puntos_premios'
+              ? 'bg-amber-500 text-white border-amber-600 ring-2 ring-amber-300 shadow-md'
+              : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
           }`}
         >
-          <ListChecks className="w-4 h-4" />
-          <span>📌 Asignadas ({activeTasks.length})</span>
+          <Sparkles className="w-4 h-4 text-amber-500" />
+          <span>🎁 Regalar Puntos</span>
+          {pendingRewardsCount > 0 && (
+            <span className="bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse">
+              {pendingRewardsCount}
+            </span>
+          )}
         </button>
 
         <button
-          onClick={() => setActiveTab('expired')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-extrabold text-xs transition shrink-0 ${
-            activeTab === 'expired'
-              ? 'bg-rose-600 text-white shadow-md shadow-rose-200'
-              : expiredTasks.length > 0
-              ? 'bg-rose-50 text-rose-900 border border-rose-200 font-extrabold'
-              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+          onClick={() => setMainTab('actividades')}
+          className={`flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-extrabold text-xs transition border shadow-sm relative ${
+            mainTab === 'actividades'
+              ? 'bg-indigo-600 text-white border-indigo-700 ring-2 ring-indigo-300 shadow-md'
+              : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
           }`}
         >
-          <AlertTriangle className="w-4 h-4" />
-          <span>⚠️ Vencidas ({expiredTasks.length})</span>
+          <ListChecks className="w-4 h-4 text-indigo-400" />
+          <span>📋 Actividades</span>
+          {pendingApprovalTasks.length > 0 && (
+            <span className="bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full animate-bounce">
+              {pendingApprovalTasks.length}
+            </span>
+          )}
         </button>
 
         <button
-          onClick={() => setActiveTab('completed')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-extrabold text-xs transition shrink-0 ${
-            activeTab === 'completed'
-              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-200'
-              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+          onClick={() => setMainTab('settings')}
+          className={`flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-extrabold text-xs transition border shadow-sm ${
+            mainTab === 'settings'
+              ? 'bg-slate-800 text-white border-slate-900 ring-2 ring-slate-400 shadow-md'
+              : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
           }`}
         >
-          <CheckCheck className="w-4 h-4" />
-          <span>🎉 Completadas ({completedTasks.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('rewards')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-extrabold text-xs transition shrink-0 ${
-            activeTab === 'rewards'
-              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200'
-              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-          }`}
-        >
-          <Sparkles className="w-4 h-4" />
-          <span>🎁 Recompensas</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('settings')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-extrabold text-xs transition shrink-0 ${
-            activeTab === 'settings'
-              ? 'bg-slate-800 text-white shadow-md shadow-slate-200'
-              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-          }`}
-        >
-          <Settings className="w-4 h-4" />
+          <Settings className="w-4 h-4 text-slate-400" />
           <span>⚙️ Configuración</span>
         </button>
       </div>
 
-      {/* Formulario Desplegable para Crear o Editar Tarea */}
-      {showTaskForm && (
-        <MamaTaskForm
-          editingTask={editingTask}
-          onSubmit={handleCreateOrUpdateTask}
-          onCancel={() => {
-            setShowTaskForm(false);
-            setEditingTask(null);
-          }}
-        />
+      {/* ==================== SECCIÓN 1: RESUMEN ==================== */}
+      {mainTab === 'resumen' && (
+        <div className="space-y-6 animate-fade-in">
+          {/* Métricas de Avance */}
+          <MamaMetricsCard
+            completionPercentage={completionPercentage}
+            completedTasksCount={completedTasks.length}
+            totalTasksCount={totalTasksCount}
+            totalFocusMinutes={totalFocusMinutes}
+            pointsBalance={pointsBalance}
+            childName={settings.childName}
+          />
+
+          {/* Indicador de Estado de Ánimo */}
+          <MamaMoodIndicator
+            childName={settings.childName}
+            todayMood={settings.todayMood}
+          />
+        </div>
       )}
 
-      {/* PESTAÑA: POR APROBAR */}
-      {activeTab === 'pending_approval' && (
-        <MamaPendingApprovalTasks
-          childName={settings.childName}
-          pendingApprovalTasks={pendingApprovalTasks}
-        />
+      {/* ==================== SECCIÓN 2: REGALAR PUNTOS Y RECOMPENSAS ==================== */}
+      {mainTab === 'puntos_premios' && (
+        <div className="space-y-6 animate-fade-in">
+          {/* Bonus de Puntos y Notas de Ánimo */}
+          <MamaBonusAndNoteWidget
+            childName={settings.childName}
+            onGiveBonus={handleGiveBonus}
+            onSendNote={handleSendNote}
+          />
+
+          {/* Tienda de Premios y Canjes */}
+          <RewardStore isMamaRole={true} />
+        </div>
       )}
 
-      {/* PESTAÑA: TAREAS ASIGNADAS ACTIVAS */}
-      {activeTab === 'active_tasks' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1">
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => setFrequencyFilter('all')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
-                  frequencyFilter === 'all'
-                    ? 'bg-purple-800 text-white border-purple-800'
-                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                Todas ({activeTasks.length})
-              </button>
-              <button
-                onClick={() => setFrequencyFilter('daily')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
-                  frequencyFilter === 'daily'
-                    ? 'bg-purple-800 text-white border-purple-800'
-                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                🔁 Diarias ({activeTasks.filter(t => t.frequencyType === 'daily').length})
-              </button>
-              <button
-                onClick={() => setFrequencyFilter('weekly')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
-                  frequencyFilter === 'weekly'
-                    ? 'bg-purple-800 text-white border-purple-800'
-                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                📅 Semanales ({activeTasks.filter(t => t.frequencyType === 'weekly').length})
-              </button>
-              <button
-                onClick={() => setFrequencyFilter('sporadic')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
-                  frequencyFilter === 'sporadic'
-                    ? 'bg-purple-800 text-white border-purple-800'
-                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                📍 Esporádicas ({activeTasks.filter(t => t.frequencyType === 'sporadic').length})
-              </button>
-            </div>
+      {/* ==================== SECCIÓN 3: ACTIVIDADES Y RUTINAS ==================== */}
+      {mainTab === 'actividades' && (
+        <div className="space-y-5 animate-fade-in">
+          
+          {/* Sub-pestañas de Actividades */}
+          <div className="flex items-center gap-2 border-b border-slate-200 pb-3 overflow-x-auto no-scrollbar">
+            <button
+              onClick={() => setActivitySubTab('pending_approval')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-extrabold text-xs transition shrink-0 ${
+                activitySubTab === 'pending_approval'
+                  ? 'bg-amber-500 text-white shadow-md shadow-amber-200'
+                  : pendingApprovalTasks.length > 0
+                  ? 'bg-amber-50 text-amber-900 border border-amber-300 font-black animate-pulse'
+                  : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              <Clock className="w-4 h-4" />
+              <span>📩 Por Aprobar ({pendingApprovalTasks.length})</span>
+            </button>
 
-            <span className="text-xs text-slate-500 font-semibold shrink-0">
-              {activeTasks.length} activas hoy
-            </span>
+            <button
+              onClick={() => setActivitySubTab('active_tasks')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-extrabold text-xs transition shrink-0 ${
+                activitySubTab === 'active_tasks'
+                  ? 'bg-purple-700 text-white shadow-md shadow-purple-200'
+                  : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              <ListChecks className="w-4 h-4" />
+              <span>📌 Asignadas ({activeTasks.length})</span>
+            </button>
+
+            <button
+              onClick={() => setActivitySubTab('expired')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-extrabold text-xs transition shrink-0 ${
+                activitySubTab === 'expired'
+                  ? 'bg-rose-600 text-white shadow-md shadow-rose-200'
+                  : expiredTasks.length > 0
+                  ? 'bg-rose-50 text-rose-900 border border-rose-200 font-extrabold'
+                  : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              <AlertTriangle className="w-4 h-4" />
+              <span>⚠️ Vencidas ({expiredTasks.length})</span>
+            </button>
+
+            <button
+              onClick={() => setActivitySubTab('completed')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-extrabold text-xs transition shrink-0 ${
+                activitySubTab === 'completed'
+                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-200'
+                  : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              <CheckCheck className="w-4 h-4" />
+              <span>🎉 Completadas ({completedTasks.length})</span>
+            </button>
           </div>
 
-          {filteredActiveTasks.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-3xl border border-dashed border-slate-200">
-              <p className="text-sm font-semibold text-slate-500">No hay tareas activas encontradas con este filtro.</p>
-              <p className="text-xs text-slate-400 mt-1">Haz clic en &quot;Crear Nueva Tarea&quot; para empezar.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredActiveTasks.map((task) => (
-                <div key={task.id} className="relative group">
-                  <TaskCard task={task} isMamaRole={true} />
+          {/* Formulario Desplegable para Crear o Editar Tarea */}
+          {showTaskForm && (
+            <MamaTaskForm
+              editingTask={editingTask}
+              onSubmit={handleCreateOrUpdateTask}
+              onCancel={() => {
+                setShowTaskForm(false);
+                setEditingTask(null);
+              }}
+            />
+          )}
+
+          {/* SUB-PESTAÑA: POR APROBAR */}
+          {activitySubTab === 'pending_approval' && (
+            <MamaPendingApprovalTasks
+              childName={settings.childName}
+              pendingApprovalTasks={pendingApprovalTasks}
+            />
+          )}
+
+          {/* SUB-PESTAÑA: TAREAS ASIGNADAS ACTIVAS */}
+          {activitySubTab === 'active_tasks' && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1">
+                <div className="flex items-center gap-1.5">
                   <button
-                    onClick={() => handleEditTaskClick(task)}
-                    className="absolute top-4 right-4 bg-white/90 hover:bg-purple-100 text-purple-700 border border-purple-200 p-2 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1 z-10"
-                    title="Editar Tarea"
+                    onClick={() => setFrequencyFilter('all')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
+                      frequencyFilter === 'all'
+                        ? 'bg-purple-800 text-white border-purple-800'
+                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                    }`}
                   >
-                    <Edit3 className="w-3.5 h-3.5" />
-                    <span>Editar</span>
+                    Todas ({activeTasks.length})
+                  </button>
+                  <button
+                    onClick={() => setFrequencyFilter('daily')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
+                      frequencyFilter === 'daily'
+                        ? 'bg-purple-800 text-white border-purple-800'
+                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    🔁 Diarias ({activeTasks.filter(t => t.frequencyType === 'daily').length})
+                  </button>
+                  <button
+                    onClick={() => setFrequencyFilter('weekly')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
+                      frequencyFilter === 'weekly'
+                        ? 'bg-purple-800 text-white border-purple-800'
+                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    📅 Semanales ({activeTasks.filter(t => t.frequencyType === 'weekly').length})
+                  </button>
+                  <button
+                    onClick={() => setFrequencyFilter('sporadic')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
+                      frequencyFilter === 'sporadic'
+                        ? 'bg-purple-800 text-white border-purple-800'
+                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    📍 Esporádicas ({activeTasks.filter(t => t.frequencyType === 'sporadic').length})
                   </button>
                 </div>
-              ))}
+
+                <span className="text-xs text-slate-500 font-semibold shrink-0">
+                  {activeTasks.length} activas hoy
+                </span>
+              </div>
+
+              {filteredActiveTasks.length === 0 ? (
+                <div className="text-center py-12 bg-white rounded-3xl border border-dashed border-slate-200">
+                  <p className="text-sm font-semibold text-slate-500">No hay tareas activas encontradas con este filtro.</p>
+                  <p className="text-xs text-slate-400 mt-1">Haz clic en &quot;Crear Nueva Tarea&quot; para empezar.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {filteredActiveTasks.map((task) => (
+                    <div key={task.id} className="relative group">
+                      <TaskCard task={task} isMamaRole={true} />
+                      <button
+                        onClick={() => handleEditTaskClick(task)}
+                        className="absolute top-4 right-4 bg-white/90 hover:bg-purple-100 text-purple-700 border border-purple-200 p-2 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1 z-10"
+                        title="Editar Tarea"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                        <span>Editar</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* SUB-PESTAÑA: TAREAS VENCIDAS */}
+          {activitySubTab === 'expired' && (
+            <MamaExpiredTasksReview
+              expiredTasks={expiredTasks}
+              onApplyPenalty={handleApplyPenalty}
+              onForgive={handleForgive}
+            />
+          )}
+
+          {/* SUB-PESTAÑA: COMPLETADAS */}
+          {activitySubTab === 'completed' && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between px-1">
+                <h3 className="text-xs font-extrabold text-emerald-700 uppercase tracking-wider">
+                  Historial de Rutinas Aprobadas Hoy ({completedTasks.length})
+                </h3>
+              </div>
+
+              {completedTasks.length === 0 ? (
+                <div className="text-center py-12 bg-white rounded-3xl border border-dashed border-slate-200">
+                  <CheckCheck className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                  <p className="text-sm font-semibold text-slate-500">Aún no hay tareas aprobadas hoy.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {completedTasks.map((task) => (
+                    <TaskCard key={task.id} task={task} isMamaRole={true} />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
       )}
 
-      {/* PESTAÑA: TAREAS VENCIDAS */}
-      {activeTab === 'expired' && (
-        <MamaExpiredTasksReview
-          expiredTasks={expiredTasks}
-          onApplyPenalty={handleApplyPenalty}
-          onForgive={handleForgive}
-        />
-      )}
-
-      {/* PESTAÑA: COMPLETADAS */}
-      {activeTab === 'completed' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between px-1">
-            <h3 className="text-xs font-extrabold text-emerald-700 uppercase tracking-wider">
-              Historial de Rutinas Aprobadas Hoy ({completedTasks.length})
-            </h3>
-          </div>
-
-          {completedTasks.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-3xl border border-dashed border-slate-200">
-              <CheckCheck className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-              <p className="text-sm font-semibold text-slate-500">Aún no hay tareas aprobadas hoy.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {completedTasks.map((task) => (
-                <TaskCard key={task.id} task={task} isMamaRole={true} />
-              ))}
-            </div>
-          )}
+      {/* ==================== SECCIÓN 4: CONFIGURACIÓN ==================== */}
+      {mainTab === 'settings' && (
+        <div className="animate-fade-in">
+          <MamaSettingsTab
+            settings={settings}
+            onUpdateSettings={updateSettings}
+          />
         </div>
-      )}
-
-      {activeTab === 'rewards' && (
-        <RewardStore isMamaRole={true} />
-      )}
-
-      {activeTab === 'settings' && (
-        <MamaSettingsTab
-          settings={settings}
-          onUpdateSettings={updateSettings}
-        />
       )}
     </div>
   );
