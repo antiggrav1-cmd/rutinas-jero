@@ -67,7 +67,7 @@ export const MoodCheckInWidget: React.FC = () => {
             ¿Cómo te sientes hoy, {settings.childName}?
           </h3>
           <p className="text-xs text-slate-500 font-medium">
-            Selecciona tu emoción. Mamá podrá verla para acompañarte mejor.
+            Selecciona cómo te sientes hoy.
           </p>
         </div>
       </div>

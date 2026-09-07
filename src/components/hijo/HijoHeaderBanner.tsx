@@ -21,7 +21,7 @@ export const HijoHeaderBanner: React.FC<HijoHeaderBannerProps> = ({
         </div>
         <h2 className="text-2xl font-black">¡Hola, {childName}! 👋</h2>
         <p className="text-xs text-teal-100 mt-1 max-w-md">
-          Completa cada paso a tu propio ritmo. Cada tarea terminada te da estrellas para ganar tus premios.
+          ¡Enfócate, hazlo bien y sin distraerte! Cumplir tus tareas rápido y completo te da más estrellas y tiempo libre para tus premios.
         </p>
       </div>
 
