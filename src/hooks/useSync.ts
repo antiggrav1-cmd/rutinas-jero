@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { useSupabaseSync } from './useSupabaseSync';
+import { isSupabaseConfigured } from '../lib/supabase';
 
 function getSyncServerUrl(): string {
   const host = window.location.hostname;
@@ -16,7 +17,6 @@ function getSyncServerUrl(): string {
 type SyncStatus = 'connecting' | 'connected' | 'disconnected' | 'error';
 
 export function useSync() {
-  const isSupabaseConfigured = Boolean(import.meta.env.VITE_SUPABASE_URL);
   const supabaseSync = useSupabaseSync();
 
   const ws = useRef<WebSocket | null>(null);

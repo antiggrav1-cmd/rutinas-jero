@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useAppStore } from '../store/useAppStore';
-import { supabase } from '../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { SupabaseDbService } from '../services/supabaseDbService';
 
 type SyncStatus = 'connecting' | 'connected' | 'disconnected' | 'error';
 
@@ -37,8 +38,7 @@ export function useSupabaseSync() {
   }, [getStateSnapshot]);
 
   useEffect(() => {
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    if (!supabaseUrl) {
+    if (!isSupabaseConfigured) {
       setStatus('disconnected');
       return;
     }
@@ -62,11 +62,21 @@ export function useSupabaseSync() {
     const unsubscribeStore = useAppStore.subscribe(() => {
       if (!isReceiving.current) {
         const snapshot = getStateSnapshot();
+        // 1. Instant Realtime broadcast
         channel.send({
           type: 'broadcast',
           event: 'state_update',
           payload: snapshot
         });
+
+        // 2. Persistent Postgres DB save in background
+        SupabaseDbService.saveFamilyProfile(snapshot.settings, snapshot.pointsBalance);
+        if (snapshot.tasks.length > 0) {
+          SupabaseDbService.syncTasks(familyCode, snapshot.tasks);
+        }
+        if (snapshot.rewards.length > 0) {
+          SupabaseDbService.syncRewards(familyCode, snapshot.rewards);
+        }
       }
     });
 
@@ -78,3 +88,4 @@ export function useSupabaseSync() {
 
   return { status };
 }
+
