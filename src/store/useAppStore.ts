@@ -98,17 +98,18 @@ export const useAppStore = create<AppState>()(
         set((state) => {
           const updatedTasks: Task[] = state.tasks.map((task) => {
             if (task.id !== taskId) return task;
+            // Don't allow toggling a task already sent for approval or completed
+            if (task.status === 'pending_approval' || task.status === 'completed') return task;
+
             const updatedSubsteps = task.substeps.map((sub) =>
               sub.id === subStepId ? { ...sub, completed: !sub.completed } : sub
             );
-            
-            const allCompleted = updatedSubsteps.length > 0 && updatedSubsteps.every((s) => s.completed);
-            const status: 'completed' | 'in_progress' = allCompleted ? 'completed' : 'in_progress';
-            
+
+            // Always stays in_progress until explicitly submitted for Mom's approval
             return {
               ...task,
               substeps: updatedSubsteps,
-              status
+              status: 'in_progress' as const
             };
           });
           return { tasks: updatedTasks };

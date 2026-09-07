@@ -137,7 +137,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isMamaRole = false }) 
           {task.substeps.map((substep) => (
             <button
               key={substep.id}
-              disabled={isCompleted}
+              disabled={isCompleted || task.status === 'pending_approval'}
               onClick={() => toggleSubStep(task.id, substep.id)}
               className={`w-full flex items-center gap-3 p-3 rounded-2xl border text-left transition-all duration-200 ${
                 substep.completed
@@ -199,7 +199,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isMamaRole = false }) 
             ) : (
               <>
                 <span className="text-xs text-slate-400 font-medium">
-                  Estado: <strong className="capitalize text-slate-700">{task.status}</strong>
+                  Estado:{' '}
+                  <strong className="text-slate-700">
+                    {task.status === 'pending' && '🕐 Pendiente'}
+                    {task.status === 'in_progress' && '⚙️ En Progreso'}
+                    {task.status === 'completed' && '✅ Completada'}
+                    {task.status === 'expired' && '⚠️ Vencida'}
+                  </strong>
                 </span>
                 <button
                   onClick={() => deleteTask(task.id)}

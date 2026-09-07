@@ -25,10 +25,15 @@ export const HijoView: React.FC = () => {
     return t.category === selectedCategory;
   });
 
-  const pendingTasks = filteredTasks.filter((t) => t.status !== 'completed');
+  // Only show actionable tasks to Jero — expired go to Mom's panel
+  const pendingTasks = filteredTasks.filter(
+    (t) => t.status === 'pending' || t.status === 'in_progress' || t.status === 'pending_approval'
+  );
   const completedTasks = filteredTasks.filter((t) => t.status === 'completed');
 
-  const totalPendingCount = tasks.filter((t) => t.status !== 'completed').length;
+  const totalPendingCount = tasks.filter(
+    (t) => t.status === 'pending' || t.status === 'in_progress' || t.status === 'pending_approval'
+  ).length;
   const totalCompletedCount = tasks.filter((t) => t.status === 'completed').length;
 
   return (
