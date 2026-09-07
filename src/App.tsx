@@ -1,14 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { useAppStore } from './store/useAppStore';
 import { Header } from './components/Header';
 import { HijoView } from './components/HijoView';
-import { MamaView } from './components/MamaView';
 import { SyncIndicator } from './components/SyncIndicator';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { useSync } from './hooks/useSync';
-import { Smartphone, Download, Heart } from 'lucide-react';
+import { Smartphone, Download, Heart, Loader2 } from 'lucide-react';
 
-export const App: React.FC = () => {
-  const { currentRole, settings, checkDailyRollover } = useAppStore();
+// Code-splitting: MamaView is lazily loaded only when Mom unlocks the role with PIN
+const MamaView = lazy(() => import('./components/MamaView').then(m => ({ default: m.MamaView })));
+
+export const AppContent: React.FC = () => {
+  const currentRole = useAppStore((state) => state.currentRole);
+  const settings = useAppStore((state) => state.settings);
+  const checkDailyRollover = useAppStore((state) => state.checkDailyRollover);
+  
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstallable, setIsInstallable] = useState(false);
   const { status: syncStatus } = useSync();
@@ -63,9 +69,22 @@ export const App: React.FC = () => {
         </div>
       )}
 
-      {/* Contenido Principal */}
+      {/* Contenido Principal con Code Splitting */}
       <main className="flex-1">
-        {currentRole === 'mama' ? <MamaView /> : <HijoView />}
+        {currentRole === 'mama' ? (
+          <Suspense
+            fallback={
+              <div className="min-h-[50vh] flex flex-col items-center justify-center gap-3 p-8 text-slate-400">
+                <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+                <span className="text-xs font-bold">Cargando Panel de Mamá...</span>
+              </div>
+            }
+          >
+            <MamaView />
+          </Suspense>
+        ) : (
+          <HijoView />
+        )}
       </main>
 
       {/* Pie de Página */}
@@ -83,6 +102,14 @@ export const App: React.FC = () => {
         </div>
       </footer>
     </div>
+  );
+};
+
+export const App: React.FC = () => {
+  return (
+    <ErrorBoundary>
+      <AppContent />
+    </ErrorBoundary>
   );
 };
 

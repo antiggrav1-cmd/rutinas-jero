@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { Gift, Star, Plus, Trash2, Check, Clock, CheckCircle2, XCircle } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { notificationService } from '../services/notificationService';
 
 interface RewardStoreProps {
   isMamaRole?: boolean;
@@ -30,6 +31,7 @@ export const RewardStore: React.FC<RewardStoreProps> = ({ isMamaRole = false }) 
     if (pointsBalance >= cost) {
       const success = redeemReward(rewardId);
       if (success) {
+        notificationService.playSuccessChime();
         confetti({
           particleCount: 90,
           spread: 80,
@@ -115,6 +117,7 @@ export const RewardStore: React.FC<RewardStoreProps> = ({ isMamaRole = false }) 
                     <button
                       onClick={() => {
                         approveRewardRedemption(req.id);
+                        notificationService.playSuccessChime();
                         confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 } });
                       }}
                       className="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-3.5 py-1.5 rounded-xl shadow-xs transition flex items-center justify-center gap-1"
@@ -123,7 +126,10 @@ export const RewardStore: React.FC<RewardStoreProps> = ({ isMamaRole = false }) 
                       <span>Aprobar y Entregar</span>
                     </button>
                     <button
-                      onClick={() => rejectRewardRedemption(req.id)}
+                      onClick={() => {
+                        rejectRewardRedemption(req.id);
+                        notificationService.playAttentionChime();
+                      }}
                       className="flex-1 sm:flex-none bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs px-3.5 py-1.5 rounded-xl border border-rose-200 transition flex items-center justify-center gap-1"
                     >
                       <XCircle className="w-3.5 h-3.5" />

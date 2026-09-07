@@ -14,6 +14,7 @@ import {
 import confetti from 'canvas-confetti';
 import { FocusTimer } from './FocusTimer';
 import { CATEGORY_CONFIG, DAY_NAMES } from '../constants';
+import { notificationService } from '../services/notificationService';
 
 interface TaskCardProps {
   task: Task;
@@ -35,6 +36,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isMamaRole = false }) 
 
   const handleCompleteTask = () => {
     completeTask(task.id);
+    notificationService.playSuccessChime();
     confetti({
       particleCount: 100,
       spread: 80,
@@ -181,6 +183,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isMamaRole = false }) 
                 <button
                   onClick={() => {
                     approveTaskAndAwardPoints(task.id);
+                    notificationService.playSuccessChime();
                     confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
                   }}
                   className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs py-2 px-3 rounded-2xl shadow-md transition flex items-center justify-center gap-1.5"
@@ -189,7 +192,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isMamaRole = false }) 
                   <span>Aprobar y Entregar +{task.rewardPoints} pts</span>
                 </button>
                 <button
-                  onClick={() => rejectTaskForRevision(task.id)}
+                  onClick={() => {
+                    rejectTaskForRevision(task.id);
+                    notificationService.playAttentionChime();
+                  }}
                   className="bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 font-bold text-xs py-2 px-3 rounded-2xl transition"
                   title="Pedir revisar nuevamente"
                 >
