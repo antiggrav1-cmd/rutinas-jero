@@ -376,7 +376,29 @@ export const useAppStore = create<AppState>()(
       setPointsBalance: (pointsBalance) => set({ pointsBalance })
     }),
     {
-      name: 'jero-asperger-adhd-app-storage'
+      name: 'jero-asperger-adhd-app-storage',
+      version: 2, // Bump version to invalidate old cached state with broken auto-complete logic
+      migrate: (persistedState: any, version: number) => {
+        if (version < 2) {
+          // Old state had auto-complete bug — reset tasks to pending/in_progress
+          // so no tasks are stuck in 'completed' without Mom's approval
+          const sanitized = {
+            ...persistedState,
+            tasks: (persistedState.tasks || []).map((t: any) => ({
+              ...t,
+              // Reset any incorrectly auto-completed tasks back to pending
+              // (only tasks without a real completedAt timestamp)
+              status: t.status === 'completed' && !t.completedAt ? 'pending' : t.status,
+              substeps: (t.substeps || []).map((s: any) => ({
+                ...s,
+                completed: t.status === 'completed' && !t.completedAt ? false : s.completed
+              }))
+            }))
+          };
+          return sanitized;
+        }
+        return persistedState;
+      }
     }
   )
 );
