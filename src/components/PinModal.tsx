@@ -38,7 +38,7 @@ export const PinModal: React.FC<PinModalProps> = ({ onClose }) => {
           </div>
           <h2 className="text-xl font-bold text-slate-800">Acceso Cuidador / Mamá</h2>
           <p className="text-xs text-slate-500 mt-1">
-            Ingresa el PIN de seguridad (Por defecto: <span className="font-mono font-bold text-purple-700">1234</span>)
+            Ingresa el PIN de seguridad para acceder al panel de Mamá
           </p>
         </div>
 

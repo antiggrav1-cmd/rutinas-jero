@@ -61,7 +61,7 @@ export const useAppStore = create<AppState>()(
       settings: {
         familyCode: 'FAM-JERO2026',
         childName: 'Jero',
-        pinMama: '1234',
+        pinMama: '1213',
         theme: 'calm',
         soundEnabled: true,
         streakCount: 0
@@ -377,25 +377,25 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'jero-asperger-adhd-app-storage',
-      version: 2, // Bump version to invalidate old cached state with broken auto-complete logic
+      version: 3, // v3: reset all data + new PIN 1213
       migrate: (persistedState: any, version: number) => {
-        if (version < 2) {
-          // Old state had auto-complete bug — reset tasks to pending/in_progress
-          // so no tasks are stuck in 'completed' without Mom's approval
-          const sanitized = {
-            ...persistedState,
-            tasks: (persistedState.tasks || []).map((t: any) => ({
-              ...t,
-              // Reset any incorrectly auto-completed tasks back to pending
-              // (only tasks without a real completedAt timestamp)
-              status: t.status === 'completed' && !t.completedAt ? 'pending' : t.status,
-              substeps: (t.substeps || []).map((s: any) => ({
-                ...s,
-                completed: t.status === 'completed' && !t.completedAt ? false : s.completed
-              }))
-            }))
+        if (version < 3) {
+          // Complete reset — clear all cached tasks, rewards, points and apply new PIN
+          return {
+            currentRole: 'hijo',
+            pointsBalance: 0,
+            tasks: [],
+            rewards: [],
+            settings: {
+              familyCode: 'FAM-JERO2026',
+              childName: 'Jero',
+              pinMama: '1213',
+              theme: 'calm',
+              soundEnabled: true,
+              streakCount: 0
+            },
+            activeTaskId: null
           };
-          return sanitized;
         }
         return persistedState;
       }
