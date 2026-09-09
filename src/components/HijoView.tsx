@@ -45,10 +45,9 @@ export const HijoView: React.FC = () => {
       {/* Banner de Mensaje de Ánimo de Mamá */}
       <EncouragementBanner />
       
-      {/* Banner de Bienvenida y Racha */}
+      {/* Banner de Bienvenida y Puntos */}
       <HijoHeaderBanner
         childName={settings.childName}
-        streakCount={settings.streakCount || 0}
         pointsBalance={pointsBalance}
       />
 
