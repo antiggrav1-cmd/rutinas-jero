@@ -86,3 +86,14 @@ describe('taskService - toggleSubstepInTasks', () => {
     expect(updated2[0].status).toBe('in_progress');
   });
 });
+
+describe('dateUtils - formatDueTime', () => {
+  it('should format 24h string into 12h AM/PM string', async () => {
+    const { formatDueTime } = await import('../../utils/dateUtils');
+    expect(formatDueTime('08:30')).toBe('8:30 AM');
+    expect(formatDueTime('12:00')).toBe('12:00 PM');
+    expect(formatDueTime('17:45')).toBe('5:45 PM');
+    expect(formatDueTime('00:15')).toBe('12:15 AM');
+    expect(formatDueTime('')).toBe('');
+  });
+});

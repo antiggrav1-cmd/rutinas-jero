@@ -28,6 +28,7 @@ create table if not exists public.tasks (
   substeps jsonb not null default '[]'::jsonb,
   status text not null default 'pending',
   assigned_date text not null,
+  due_time text,
   frequency_type text not null default 'daily',
   weekly_days jsonb,
   sporadic_date text,

@@ -12,6 +12,7 @@ interface MamaTaskFormProps {
     frequencyType: FrequencyType;
     weeklyDays?: number[];
     sporadicDate?: string;
+    dueTime?: string;
     estimatedMinutes: number;
     rewardPoints: number;
     substeps: SubStep[];
@@ -30,6 +31,7 @@ export const MamaTaskForm: React.FC<MamaTaskFormProps> = ({
   const [frequencyType, setFrequencyType] = useState<FrequencyType>('daily');
   const [weeklyDays, setWeeklyDays] = useState<number[]>([1, 2, 3, 4, 5]);
   const [sporadicDate, setSporadicDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [dueTime, setDueTime] = useState<string>('');
   const [estimatedMinutes, setEstimatedMinutes] = useState(15);
   const [rewardPoints, setRewardPoints] = useState(30);
   const [substeps, setSubsteps] = useState<{ id: string; title: string }[]>([
@@ -44,6 +46,7 @@ export const MamaTaskForm: React.FC<MamaTaskFormProps> = ({
       setFrequencyType(editingTask.frequencyType || 'daily');
       setWeeklyDays(editingTask.weeklyDays || [1, 2, 3, 4, 5]);
       setSporadicDate(editingTask.sporadicDate || new Date().toISOString().split('T')[0]);
+      setDueTime(editingTask.dueTime || '');
       setEstimatedMinutes(editingTask.estimatedMinutes);
       setRewardPoints(editingTask.rewardPoints);
       setSubsteps(
@@ -109,6 +112,7 @@ export const MamaTaskForm: React.FC<MamaTaskFormProps> = ({
       frequencyType,
       weeklyDays: frequencyType === 'weekly' ? weeklyDays : undefined,
       sporadicDate: frequencyType === 'sporadic' ? sporadicDate : undefined,
+      dueTime: dueTime.trim() ? dueTime.trim() : undefined,
       estimatedMinutes: Number(estimatedMinutes),
       rewardPoints: Number(rewardPoints),
       substeps: formattedSubsteps
@@ -129,85 +133,79 @@ export const MamaTaskForm: React.FC<MamaTaskFormProps> = ({
         </span>
       </div>
 
-      {/* Plantillas Rápidas */}
       {!editingTask && (
         <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-3.5">
           <div className="flex items-center gap-1.5 text-xs font-extrabold text-amber-900 mb-2">
             <Wand2 className="w-4 h-4 text-amber-600" />
             <span>Plantillas Rápidas Predefinidas (Clic para autocompletar):</span>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {PRESET_TEMPLATES.map((tmpl) => {
-              const Icon = tmpl.icon;
-              return (
-                <button
-                  key={tmpl.name}
-                  type="button"
-                  onClick={() => handleApplyTemplate(tmpl)}
-                  className="flex items-center gap-1.5 bg-white hover:bg-amber-100/60 border border-amber-300 text-amber-950 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-sm"
-                >
-                  <Icon className="w-3.5 h-3.5 text-amber-600" />
-                  <span>{tmpl.name}</span>
-                </button>
-              );
-            })}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {PRESET_TEMPLATES.map((tpl, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => handleApplyTemplate(tpl)}
+                className="text-left p-2.5 bg-white border border-amber-200 rounded-xl hover:bg-amber-100/60 transition text-xs flex flex-col justify-between shadow-2xs"
+              >
+                <div className="font-bold text-slate-800 line-clamp-1">{tpl.title}</div>
+                <div className="text-[10px] text-amber-800 mt-1 flex items-center justify-between">
+                  <span>{tpl.estimatedMinutes}m</span>
+                  <span className="font-bold">+{tpl.rewardPoints}pts</span>
+                </div>
+              </button>
+            ))}
           </div>
         </div>
       )}
 
-      {/* Frecuencia de Repetición */}
-      <div className="bg-purple-50/50 p-4 rounded-2xl border border-purple-100 space-y-3">
-        <label className="block text-xs font-extrabold text-purple-900 uppercase tracking-wider">
-          Frecuencia de Repetición
-        </label>
+      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+        <label className="block text-xs font-bold text-slate-700">Frecuencia / Repetición de la Tarea</label>
         
         <div className="grid grid-cols-3 gap-2">
           <button
             type="button"
             onClick={() => setFrequencyType('daily')}
-            className={`flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-bold border transition ${
+            className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl font-bold text-xs transition border ${
               frequencyType === 'daily'
-                ? 'bg-purple-600 text-white border-purple-700 shadow-sm'
-                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                ? 'bg-purple-700 text-white border-purple-800 shadow-xs'
+                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
             }`}
           >
             <Repeat className="w-3.5 h-3.5" />
-            <span>🔁 Diaria</span>
+            <span>🔁 Todos los días</span>
           </button>
 
           <button
             type="button"
             onClick={() => setFrequencyType('weekly')}
-            className={`flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-bold border transition ${
+            className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl font-bold text-xs transition border ${
               frequencyType === 'weekly'
-                ? 'bg-purple-600 text-white border-purple-700 shadow-sm'
-                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                ? 'bg-purple-700 text-white border-purple-800 shadow-xs'
+                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
             }`}
           >
             <Calendar className="w-3.5 h-3.5" />
-            <span>📅 Semanal</span>
+            <span>📅 Días de la semana</span>
           </button>
 
           <button
             type="button"
             onClick={() => setFrequencyType('sporadic')}
-            className={`flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-bold border transition ${
+            className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl font-bold text-xs transition border ${
               frequencyType === 'sporadic'
-                ? 'bg-purple-600 text-white border-purple-700 shadow-sm'
-                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                ? 'bg-purple-700 text-white border-purple-800 shadow-xs'
+                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
             }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>📍 Esporádica</span>
+            <span>📍 Tarea Puntual</span>
           </button>
         </div>
 
         {frequencyType === 'weekly' && (
-          <div className="pt-2">
-            <span className="block text-xs font-bold text-slate-700 mb-1.5">
-              Selecciona los días de la semana:
-            </span>
-            <div className="flex gap-1.5">
+          <div className="pt-2 border-t border-slate-200/60 animate-fade-in">
+            <span className="text-[11px] text-slate-500 font-semibold block mb-2">Selecciona los días que se repite:</span>
+            <div className="flex flex-wrap gap-1.5">
               {DAYS_OF_WEEK.map((day) => {
                 const isSelected = weeklyDays.includes(day.id);
                 return (
@@ -215,10 +213,10 @@ export const MamaTaskForm: React.FC<MamaTaskFormProps> = ({
                     key={day.id}
                     type="button"
                     onClick={() => handleToggleDay(day.id)}
-                    className={`w-9 h-9 rounded-xl font-extrabold text-xs transition border ${
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
                       isSelected
-                        ? 'bg-purple-700 text-white border-purple-800 shadow'
-                        : 'bg-white text-slate-600 border-slate-200 hover:bg-purple-100'
+                        ? 'bg-purple-600 text-white border-purple-700 shadow-xs'
+                        : 'bg-white text-slate-600 border-slate-200 hover:bg-purple-50'
                     }`}
                   >
                     {day.label}
@@ -230,15 +228,13 @@ export const MamaTaskForm: React.FC<MamaTaskFormProps> = ({
         )}
 
         {frequencyType === 'sporadic' && (
-          <div className="pt-2">
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              Fecha Específica para la actividad:
-            </label>
+          <div className="pt-2 border-t border-slate-200/60 animate-fade-in">
+            <span className="text-[11px] text-slate-500 font-semibold block mb-1">Fecha programada para esta tarea:</span>
             <input
               type="date"
               value={sporadicDate}
               onChange={(e) => setSporadicDate(e.target.value)}
-              className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+              className="px-4 py-2 bg-white border rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
         )}
@@ -246,19 +242,19 @@ export const MamaTaskForm: React.FC<MamaTaskFormProps> = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">Título de la Tarea</label>
+          <label className="block text-xs font-bold text-slate-700 mb-1">Título de la Tarea / Rutina</label>
           <input
             type="text"
-            placeholder="Ej. Tarea de Ciencias Sociales"
+            required
+            placeholder="Ej. Lavarme los dientes después de cenar"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="w-full px-4 py-2.5 bg-slate-50 border rounded-2xl text-sm focus:ring-2 focus:ring-purple-500 focus:bg-white focus:outline-none"
-            required
           />
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">Categoría Visual</label>
+          <label className="block text-xs font-bold text-slate-700 mb-1">Categoría</label>
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value as CategoryType)}
@@ -266,8 +262,8 @@ export const MamaTaskForm: React.FC<MamaTaskFormProps> = ({
           >
             <option value="routine_morning">🌅 Rutina Mañana</option>
             <option value="routine_night">🌙 Rutina Noche</option>
-            <option value="school">📚 Escuela / Estudio</option>
-            <option value="home">🧺 Hogar / Habitación</option>
+            <option value="school">📚 Escuela / Tareas</option>
+            <option value="home">🧺 Hogar / Cuarto</option>
             <option value="personal">🧼 Cuidado Personal</option>
             <option value="custom">✨ Otra Actividad</option>
           </select>
@@ -275,7 +271,7 @@ export const MamaTaskForm: React.FC<MamaTaskFormProps> = ({
       </div>
 
       <div>
-        <label className="block text-xs font-bold text-slate-700 mb-1">Descripción / Instrucción Corta</label>
+        <label className="block text-xs font-bold text-slate-700 mb-1">Instrucción Clara o Acompañamiento (Opcional)</label>
         <input
           type="text"
           placeholder="Ej. Realizar en el escritorio libre de objetos"
@@ -285,7 +281,7 @@ export const MamaTaskForm: React.FC<MamaTaskFormProps> = ({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label className="block text-xs font-bold text-slate-700 mb-1">Tiempo Estimado (Minutos)</label>
           <input
@@ -311,9 +307,30 @@ export const MamaTaskForm: React.FC<MamaTaskFormProps> = ({
             className="w-full px-4 py-2 bg-slate-50 border rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-purple-500 focus:outline-none"
           />
         </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-xs font-bold text-slate-700">⏰ Hora Límite</label>
+            {dueTime && (
+              <button
+                type="button"
+                onClick={() => setDueTime('')}
+                className="text-[10px] text-rose-500 hover:underline font-semibold"
+              >
+                Quitar
+              </button>
+            )}
+          </div>
+          <input
+            type="time"
+            value={dueTime}
+            onChange={(e) => setDueTime(e.target.value)}
+            className="w-full px-4 py-2 bg-slate-50 border rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-purple-500 focus:outline-none"
+          />
+          <span className="text-[10px] text-slate-400 mt-1 block">Referencia para alertas</span>
+        </div>
       </div>
 
-      {/* Sección de Sub-pasos */}
       <div className="bg-purple-50/60 p-4 rounded-2xl border border-purple-100 space-y-2">
         <div className="flex items-center justify-between">
           <label className="text-xs font-bold text-purple-900">

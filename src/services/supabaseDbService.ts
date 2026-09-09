@@ -49,6 +49,7 @@ export class SupabaseDbService {
         substeps: t.substeps,
         status: t.status,
         assigned_date: t.assignedDate,
+        due_time: t.dueTime,
         frequency_type: t.frequencyType,
         weekly_days: t.weeklyDays,
         sporadic_date: t.sporadicDate,

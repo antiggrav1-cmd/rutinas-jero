@@ -22,7 +22,7 @@ import {
   AlertTriangle 
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { getTodayISO } from '../utils/dateUtils';
+import { getTodayISO, isTimePastToday, formatDueTime } from '../utils/dateUtils';
 
 type MamaMainTab = 'resumen' | 'puntos_premios' | 'actividades' | 'settings';
 type ActivitySubTab = 'pending_approval' | 'active_tasks' | 'expired' | 'completed';
@@ -100,6 +100,7 @@ export const MamaView: React.FC = () => {
   const expiredTasks = tasks.filter((t) => t.status === 'expired');
   const activeTasks = tasks.filter((t) => t.status === 'pending' || t.status === 'in_progress');
   const completedTasks = tasks.filter((t) => t.status === 'completed');
+  const overdueTasks = activeTasks.filter((t) => isTimePastToday(t.dueTime));
 
   const filteredActiveTasks = activeTasks.filter((t) => {
     if (frequencyFilter === 'all') return true;
@@ -147,6 +148,35 @@ export const MamaView: React.FC = () => {
         </button>
       </div>
 
+      {/* Alerta de Tareas que superaron la Hora Límite */}
+      {overdueTasks.length > 0 && (
+        <div className="bg-gradient-to-r from-rose-600 via-rose-500 to-amber-600 text-white p-4 rounded-3xl shadow-xl mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border border-rose-400/80 animate-fade-in">
+          <div className="flex items-center gap-3">
+            <div className="bg-white/20 backdrop-blur-md p-2.5 rounded-2xl shrink-0">
+              <AlertTriangle className="w-6 h-6 text-white animate-bounce-short" />
+            </div>
+            <div>
+              <h4 className="font-black text-sm flex items-center gap-1.5">
+                <span>⚠️ Alerta de Tiempo:</span>
+                <span>{overdueTasks.length} {overdueTasks.length === 1 ? 'tarea superó' : 'tareas superaron'} la hora límite</span>
+              </h4>
+              <p className="text-xs text-rose-100 mt-0.5 font-medium">
+                {overdueTasks.map(t => `${t.title} (${formatDueTime(t.dueTime)})`).join(' • ')}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              setMainTab('actividades');
+              setActivitySubTab('active_tasks');
+            }}
+            className="bg-white hover:bg-rose-50 active:scale-95 text-rose-950 font-black text-xs px-4 py-2.5 rounded-2xl shrink-0 shadow-md transition"
+          >
+            Revisar Tareas
+          </button>
+        </div>
+      )}
+
       {/* Pestañas Principales Organizadas */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
         <button
@@ -188,11 +218,15 @@ export const MamaView: React.FC = () => {
         >
           <ListChecks className="w-4 h-4 text-indigo-400" />
           <span>📋 Actividades</span>
-          {pendingApprovalTasks.length > 0 && (
+          {overdueTasks.length > 0 ? (
+            <span className="bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse" title="Tareas que superaron la hora límite">
+              ⚠️ {overdueTasks.length}
+            </span>
+          ) : pendingApprovalTasks.length > 0 ? (
             <span className="bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full animate-bounce">
               {pendingApprovalTasks.length}
             </span>
-          )}
+          ) : null}
         </button>
 
         <button
@@ -274,6 +308,11 @@ export const MamaView: React.FC = () => {
             >
               <ListChecks className="w-4 h-4" />
               <span>📌 Asignadas ({activeTasks.length})</span>
+              {overdueTasks.length > 0 && (
+                <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full animate-pulse">
+                  ⚠️ {overdueTasks.length}
+                </span>
+              )}
             </button>
 
             <button

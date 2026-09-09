@@ -55,6 +55,7 @@ export interface Task {
   frequencyType: FrequencyType;
   weeklyDays?: number[]; // Array de días 0 (Dom) a 6 (Sáb)
   sporadicDate?: string; // YYYY-MM-DD para tareas esporádicas
+  dueTime?: string; // HH:mm hora límite de referencia
   expiredDate?: string; // Fecha en la que venció
 }
 

@@ -9,12 +9,14 @@ import {
   Play, 
   Trash2,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  AlertCircle
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { FocusTimer } from './FocusTimer';
 import { CATEGORY_CONFIG, DAY_NAMES } from '../constants';
 import { notificationService } from '../services/notificationService';
+import { isTimePastToday, formatDueTime } from '../utils/dateUtils';
 
 interface TaskCardProps {
   task: Task;
@@ -33,6 +35,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isMamaRole = false }) 
   const totalSubsteps = task.substeps.length;
   const progressPercent = totalSubsteps > 0 ? (completedSubstepsCount / totalSubsteps) * 100 : 0;
   const isCompleted = task.status === 'completed';
+  const isOverdue = !isCompleted && task.status !== 'pending_approval' && isTimePastToday(task.dueTime);
 
   const handleCompleteTask = () => {
     completeTask(task.id);
@@ -61,6 +64,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isMamaRole = false }) 
       className={`rounded-3xl border transition-all duration-300 overflow-hidden shadow-sm hover:shadow-md ${
         isCompleted
           ? 'bg-slate-50/80 border-slate-200 opacity-80'
+          : isOverdue
+          ? 'bg-rose-50/30 border-rose-300 hover:border-rose-400'
           : 'bg-white border-slate-100 hover:border-teal-200'
       }`}
     >
@@ -84,6 +89,30 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isMamaRole = false }) 
             <span className="flex items-center gap-1 text-[11px] text-purple-700 font-semibold bg-purple-50 border border-purple-100 px-2.5 py-1 rounded-full">
               {getFrequencyLabel()}
             </span>
+
+            {/* Due Time Reference Badge */}
+            {task.dueTime && (
+              <span
+                className={`flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full border ${
+                  isOverdue
+                    ? 'bg-rose-100 text-rose-800 border-rose-300 animate-pulse'
+                    : 'bg-blue-50 text-blue-700 border-blue-200'
+                }`}
+                title={isOverdue ? 'Esta tarea superó la hora límite programada' : 'Hora límite de referencia'}
+              >
+                {isOverdue ? (
+                  <>
+                    <AlertCircle className="w-3 h-3 text-rose-600" />
+                    <span>⚠️ Límite superado ({formatDueTime(task.dueTime)})</span>
+                  </>
+                ) : (
+                  <>
+                    <Clock className="w-3 h-3 text-blue-600" />
+                    <span>Límite: {formatDueTime(task.dueTime)}</span>
+                  </>
+                )}
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-1 bg-amber-100/70 border border-amber-300/60 text-amber-900 font-extrabold text-xs px-3 py-1 rounded-full shadow-inner">
