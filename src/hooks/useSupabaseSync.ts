@@ -52,7 +52,7 @@ export function useSupabaseSync() {
       if (!data) return;
       const store = useAppStore.getState();
 
-      if (data.tasks && data.tasks.length > 0) {
+      if (Array.isArray(data.tasks)) {
         const mappedTasks = data.tasks.map((t: any) => ({
           id: t.id,
           title: t.title,
@@ -73,7 +73,7 @@ export function useSupabaseSync() {
         store.setTasks(mappedTasks);
       }
 
-      if (data.rewards && data.rewards.length > 0) {
+      if (Array.isArray(data.rewards)) {
         const mappedRewards = data.rewards.map((r: any) => ({
           id: r.id,
           title: r.title,
@@ -122,12 +122,8 @@ export function useSupabaseSync() {
 
         // 2. Persistent Postgres DB save in background
         SupabaseDbService.saveFamilyProfile(snapshot.settings, snapshot.pointsBalance);
-        if (snapshot.tasks.length > 0) {
-          SupabaseDbService.syncTasks(familyCode, snapshot.tasks);
-        }
-        if (snapshot.rewards.length > 0) {
-          SupabaseDbService.syncRewards(familyCode, snapshot.rewards);
-        }
+        SupabaseDbService.syncTasks(familyCode, snapshot.tasks);
+        SupabaseDbService.syncRewards(familyCode, snapshot.rewards);
       }
     });
 

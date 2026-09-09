@@ -38,6 +38,14 @@ export class SupabaseDbService {
   static async syncTasks(familyCode: string, tasks: Task[]) {
     if (!supabase) return null;
     try {
+      if (tasks.length === 0) {
+        await supabase.from('tasks').delete().eq('family_code', familyCode);
+        return [];
+      }
+
+      const taskIds = tasks.map(t => t.id);
+      await supabase.from('tasks').delete().eq('family_code', familyCode).not('id', 'in', `(${taskIds.join(',')})`);
+
       const payload = tasks.map(t => ({
         id: t.id,
         family_code: familyCode,
@@ -76,6 +84,14 @@ export class SupabaseDbService {
   static async syncRewards(familyCode: string, rewards: Reward[]) {
     if (!supabase) return null;
     try {
+      if (rewards.length === 0) {
+        await supabase.from('rewards').delete().eq('family_code', familyCode);
+        return [];
+      }
+
+      const rewardIds = rewards.map(r => r.id);
+      await supabase.from('rewards').delete().eq('family_code', familyCode).not('id', 'in', `(${rewardIds.join(',')})`);
+
       const payload = rewards.map(r => ({
         id: r.id,
         family_code: familyCode,

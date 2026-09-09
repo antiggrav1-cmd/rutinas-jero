@@ -45,6 +45,9 @@ interface AppState {
   updateSettings: (newSettings: Partial<FamilySettings>) => void;
   setTodayMood: (mood: MoodType) => void;
 
+  // Reset / Clear
+  clearAllData: () => void;
+
   // Sync bulk setters (used by WebSocket sync hook)
   setTasks: (tasks: Task[]) => void;
   setRewards: (rewards: Reward[]) => void;
@@ -67,6 +70,22 @@ export const useAppStore = create<AppState>()(
         streakCount: 0
       },
       activeTaskId: null,
+
+      clearAllData: () => {
+        set((state) => ({
+          tasks: [],
+          rewards: [],
+          pointsBalance: 0,
+          activeTaskId: null,
+          settings: {
+            ...state.settings,
+            streakCount: 0,
+            todayMood: undefined,
+            latestNote: undefined,
+            pendingRewardRequests: []
+          }
+        }));
+      },
 
       setRole: (role) => set({ currentRole: role }),
 
