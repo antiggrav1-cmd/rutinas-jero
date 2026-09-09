@@ -85,9 +85,22 @@ export const MamaView: React.FC = () => {
     setShowTaskForm(false);
   };
 
-  const handleApplyPenalty = (taskId: string, title: string) => {
-    applyPenaltyForExpiredTask(taskId, 10);
-    showToast(`📉 Se aplicó la consecuencia (-10 pts) en: "${title}"`);
+  const handleApplyPenalty = (taskId: string, title: string, points: number = 10) => {
+    applyPenaltyForExpiredTask(taskId, points);
+    sendEncouragementNote(`⚠️ Se descontaron ${points} estrellas por no completar la tarea "${title}". ¡Ánimo ${settings.childName}, en la siguiente tarea puedes recuperarte! 💪`);
+    showToast(`📉 Se aplicó la penalización (-${points} pts) en: "${title}"`);
+  };
+
+  const handleApplyOverduePenalty = (taskId: string, title: string, points: number = 10) => {
+    applyPenaltyForExpiredTask(taskId, points);
+    updateTask(taskId, { dueTime: undefined });
+    sendEncouragementNote(`⚠️ Se descontaron ${points} estrellas por superar la hora límite en "${title}". ¡Aún puedes completarla para ganar nuevos puntos! 💪`);
+    showToast(`📉 Penalización aplicada (-${points} pts) en: "${title}"`);
+  };
+
+  const handleExtendDueTime = (taskId: string, title: string) => {
+    updateTask(taskId, { dueTime: undefined });
+    showToast(`⏳ Se retiró la hora límite de "${title}" para darle más tiempo a ${settings.childName}`);
   };
 
   const handleForgive = (taskId: string, title: string) => {
@@ -320,13 +333,13 @@ export const MamaView: React.FC = () => {
               className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl font-extrabold text-xs transition shrink-0 ${
                 activitySubTab === 'expired'
                   ? 'bg-rose-600 text-white shadow-md shadow-rose-200'
-                  : expiredTasks.length > 0
-                  ? 'bg-rose-50 text-rose-900 border border-rose-200 font-extrabold'
+                  : (expiredTasks.length + overdueTasks.length) > 0
+                  ? 'bg-rose-50 text-rose-900 border border-rose-300 font-extrabold animate-pulse'
                   : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
               }`}
             >
               <AlertTriangle className="w-4 h-4" />
-              <span>⚠️ Vencidas ({expiredTasks.length})</span>
+              <span>⚠️ Penalizaciones ({expiredTasks.length + overdueTasks.length})</span>
             </button>
 
             <button
@@ -439,12 +452,16 @@ export const MamaView: React.FC = () => {
             </div>
           )}
 
-          {/* SUB-PESTAÑA: TAREAS VENCIDAS */}
+          {/* SUB-PESTAÑA: PENALIZACIONES Y TAREAS VENCIDAS */}
           {activitySubTab === 'expired' && (
             <MamaExpiredTasksReview
               expiredTasks={expiredTasks}
+              overdueTasks={overdueTasks}
+              childName={settings.childName}
               onApplyPenalty={handleApplyPenalty}
+              onApplyOverduePenalty={handleApplyOverduePenalty}
               onForgive={handleForgive}
+              onExtendDueTime={handleExtendDueTime}
             />
           )}
 
