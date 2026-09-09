@@ -97,4 +97,27 @@ export class SupabaseDbService {
       return null;
     }
   }
+
+  /**
+   * Fetch full family state from Postgres on startup
+   */
+  static async fetchFamilyData(familyCode: string) {
+    if (!supabase) return null;
+    try {
+      const [profileRes, tasksRes, rewardsRes] = await Promise.all([
+        supabase.from('family_profiles').select('*').eq('family_code', familyCode).maybeSingle(),
+        supabase.from('tasks').select('*').eq('family_code', familyCode),
+        supabase.from('rewards').select('*').eq('family_code', familyCode),
+      ]);
+
+      return {
+        profile: profileRes.data,
+        tasks: tasksRes.data,
+        rewards: rewardsRes.data,
+      };
+    } catch (e) {
+      console.warn('Supabase fetchFamilyData error:', e);
+      return null;
+    }
+  }
 }

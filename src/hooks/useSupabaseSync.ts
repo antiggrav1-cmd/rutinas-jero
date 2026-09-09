@@ -47,6 +47,57 @@ export function useSupabaseSync() {
       config: { broadcast: { self: false } }
     });
 
+    // Fetch initial persistent data from Supabase Postgres
+    SupabaseDbService.fetchFamilyData(familyCode).then((data) => {
+      if (!data) return;
+      const store = useAppStore.getState();
+
+      if (data.tasks && data.tasks.length > 0) {
+        const mappedTasks = data.tasks.map((t: any) => ({
+          id: t.id,
+          title: t.title,
+          description: t.description || '',
+          category: t.category,
+          estimatedMinutes: t.estimated_minutes,
+          rewardPoints: t.reward_points,
+          substeps: t.substeps || [],
+          status: t.status,
+          assignedDate: t.assigned_date,
+          dueTime: t.due_time || undefined,
+          frequencyType: t.frequency_type || 'sporadic',
+          weeklyDays: t.weekly_days || [],
+          sporadicDate: t.sporadic_date || undefined,
+          expiredDate: t.expired_date || undefined,
+          completedAt: t.completed_at || undefined,
+        }));
+        store.setTasks(mappedTasks);
+      }
+
+      if (data.rewards && data.rewards.length > 0) {
+        const mappedRewards = data.rewards.map((r: any) => ({
+          id: r.id,
+          title: r.title,
+          costPoints: r.cost_points,
+          icon: r.icon,
+          redeemedCount: r.redeemed_count || 0,
+        }));
+        store.setRewards(mappedRewards);
+      }
+
+      if (data.profile) {
+        if (data.profile.points_balance !== undefined && data.profile.points_balance !== null) {
+          store.setPointsBalance(data.profile.points_balance);
+        }
+        store.updateSettings({
+          childName: data.profile.child_name || store.settings.childName,
+          streakCount: data.profile.streak_count ?? store.settings.streakCount,
+          lastRolloverDate: data.profile.last_rollover_date || store.settings.lastRolloverDate,
+          todayMood: data.profile.today_mood || store.settings.todayMood,
+          latestNote: data.profile.latest_note ?? store.settings.latestNote,
+        });
+      }
+    });
+
     channel
       .on('broadcast', { event: 'state_update' }, ({ payload }) => {
         applyRemoteState(payload);
